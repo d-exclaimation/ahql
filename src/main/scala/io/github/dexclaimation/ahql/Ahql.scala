@@ -21,6 +21,34 @@ import scala.reflect.ClassTag
 object Ahql extends SprayJsonSupport {
 
   /**
+   * Minimal GraphQL Server Middleware and Router
+   *
+   * @param schema             Sangria GraphQL Schema.
+   * @param root               Root value object for the schema.
+   * @param queryValidator     Executor queryValidator.
+   * @param deferredResolver   Any deferred resolver used by the executor.
+   * @param exceptionHandler   Query Exception Handlers.
+   * @param deprecationTracker Deprecation Trackers used by the executor.
+   * @param middleware         Resolver middleware.
+   * @param maxQueryDepth      Limit of the query depth can be resolved.
+   * @param queryReducers      Query reducers for resolvers.
+   */
+  def createServer[Ctx, Val: ClassTag](
+    schema: Schema[Ctx, Val],
+    root: Val,
+    queryValidator: QueryValidator = QueryValidator.default,
+    deferredResolver: DeferredResolver[Ctx] = DeferredResolver.empty,
+    exceptionHandler: ExceptionHandler = ExceptionHandler.empty,
+    deprecationTracker: DeprecationTracker = DeprecationTracker.empty,
+    middleware: List[Middleware[Ctx]] = Nil,
+    maxQueryDepth: Option[Int] = None,
+    queryReducers: List[QueryReducer[Ctx, _]] = Nil
+  ): AhqlServer[Ctx, Val] = new AhqlServer[Ctx, Val](
+    schema, root, queryValidator, deferredResolver, exceptionHandler,
+    deprecationTracker, middleware, maxQueryDepth, queryReducers
+  )
+
+  /**
    * GraphQL Route Handler for `akka-http` and `spray-json`.
    *
    * @param schema             Sangria GraphQL Schema.

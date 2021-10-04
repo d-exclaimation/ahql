@@ -26,6 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 /**
+ * Minimal GraphQL Server Middleware and Router
  *
  * @param schema             Sangria GraphQL Schema.
  * @param root               Root value object for the schema.
