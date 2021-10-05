@@ -20,6 +20,8 @@ import scala.reflect.ClassTag
 
 object Ahql extends SprayJsonSupport {
 
+  type Server[Ctx, Val] = AhqlServer[Ctx, Val]
+
   /**
    * Minimal GraphQL Server Middleware and Router
    *
@@ -43,7 +45,7 @@ object Ahql extends SprayJsonSupport {
     middleware: List[Middleware[Ctx]] = Nil,
     maxQueryDepth: Option[Int] = None,
     queryReducers: List[QueryReducer[Ctx, _]] = Nil
-  ): AhqlServer[Ctx, Val] = new AhqlServer[Ctx, Val](
+  ): Server[Ctx, Val] = new AhqlServer[Ctx, Val](
     schema, root, queryValidator, deferredResolver, exceptionHandler,
     deprecationTracker, middleware, maxQueryDepth, queryReducers
   )
