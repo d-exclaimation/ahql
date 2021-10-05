@@ -5,7 +5,7 @@ scalaVersion := "2.13.3"
 
 ThisBuild / name := "ahql"
 ThisBuild / organization := "io.github.d-exclaimation"
-ThisBuild / version := "0.0.1"
+ThisBuild / version := "0.1.0"
 ThisBuild / organizationHomepage := Some(url("https://www.dexclaimation.com"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -22,8 +22,6 @@ ThisBuild / developers := List(
     url = url("https://www.dexclaimation.com")
   )
 )
-
-crossPaths := false
 
 ThisBuild / description := "Akka Http Query Library, a minimal GraphQL client and server exposing as a set of akka-http utilities"
 ThisBuild / licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))

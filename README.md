@@ -8,7 +8,7 @@ Akka Http Query Library, minimal GraphQL client and server exposing as a set of 
 
 ## Setup
 
-**Latest Version**: `0.0.1`
+**Latest Version**: `0.1.0`
 
 ```sbt
 "io.github.d-exclaimation" % "ahql" % latestVersion
@@ -17,7 +17,6 @@ Akka Http Query Library, minimal GraphQL client and server exposing as a set of 
 ## Usage/Examples
 
 - [Getting Started](https://overlayer.netlify.app/docs/intro)
-
 
 ### Feedback
 
