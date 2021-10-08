@@ -12,11 +12,16 @@ import akka.http.scaladsl.model.StatusCodes.{BadRequest, OK}
 import akka.http.scaladsl.server.Directives.path
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import io.github.dexclaimation.ahql.graphql.{GqlRequest, GqlResponse}
+import io.github.dexclaimation.ahql.implicits._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import sangria.macros.LiteralGraphQLStringContext
 import sangria.schema.{Field, ObjectType, Schema, StringType, fields}
+import spray.json.DefaultJsonProtocol._
 import spray.json.{JsObject, JsString, JsValue}
 
+import java.net.URLEncoder
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
@@ -32,59 +37,65 @@ class ServerTest extends AnyWordSpec with Matchers with ScalatestRouteTest with 
 
   val ahqlServer = new AhqlServer(schema, ())
 
-  "AhqlServer" should {
+  "AhqlServer" when {
 
-    "return a route when applying middleware" in {
-      ahqlServer.applyMiddleware(()) match {
-        case _: Route => succeed
-        case _ => fail("Must return route when applying middleware")
-      }
-    }
-
-    "return a Future of StatusCodes and JsValue when serving" in {
-      val fut = ahqlServer.serve(JsObject.empty, ())
-      Await.result(fut, Duration.Inf) match {
-        case BadRequest -> JsObject(_) => succeed
-        case _ => fail("Invalid request should return BadRequest 404")
-      }
-    }
-
-    val smallRoute = path("graphql") {
-      ahqlServer.applyMiddleware(())
-    }
-
-    "return a BadRequest on invalid request to POST `/graphql`" in {
-      Post("/graphql", JsObject.empty) ~> smallRoute ~> check {
-        status shouldEqual BadRequest
-      }
-    }
-
-    "return a 200 Ok with `Hello World!` on valid request to POST `/graphql`" in {
-      val query = "query { helloWorld }"
-      val req = JsObject("query" -> JsString(query))
-
-      Post("/graphql", req) ~> smallRoute ~> check {
-        status shouldEqual OK
-        responseAs[JsValue] match {
-          case JsObject(resp) => resp("data") match {
-            case JsObject(data) => data("helloWorld") shouldEqual JsString("Hello World!")
-            case _ => fail("Missing response `helloWorld`")
-          }
-          case _ => fail("Response is not in valid JsObject")
+    "applying middleware" should {
+      "return a valid `akka-http` route" in {
+        ahqlServer.applyMiddleware(()) match {
+          case _: Route => succeed
+          case _ => fail("Must return route when applying middleware")
         }
       }
     }
 
-    "return the same result on valid request to GET `/graphql`" in {
-      val query = "query{helloWorld}"
-      Get(s"/graphql?query=$query") ~> smallRoute ~> check {
-        status shouldEqual OK
-        responseAs[JsValue] match {
-          case JsObject(resp) => resp("data") match {
-            case JsObject(data) => data("helloWorld") shouldEqual JsString("Hello World!")
-            case _ => fail("Missing response `helloWorld`")
+    "serving" should {
+      "return a Future of StatusCodes and JsValue" in {
+        val fut = ahqlServer.serve(JsObject.empty, ())
+        Await.result(fut, Duration.Inf) match {
+          case BadRequest -> JsObject(_) => succeed
+          case _ => fail("Invalid request should return BadRequest 404")
+        }
+      }
+    }
+
+
+    "being hit with request(s)" should {
+      val smallRoute = path("graphql") {
+        ahqlServer.applyMiddleware(())
+      }
+
+      "return a BadRequest on invalid request to POST `/graphql`" in {
+        Post("/graphql", JsObject.empty) ~> smallRoute ~> check {
+          status shouldEqual BadRequest
+        }
+      }
+
+      "return a 200 Ok with `Hello World!` on valid request to POST `/graphql`" in {
+        val query = graphql"query { helloWorld }"
+        val req = GqlRequest(query)
+
+        Post("/graphql", req) ~> smallRoute ~> check {
+          status shouldEqual OK
+          responseAs[JsValue] match {
+            case GqlResponse(Some(data), _) =>
+              data("helloWorld") shouldEqual JsString("Hello World!")
+            case _ => fail("Response is not in valid JsObject")
           }
-          case _ => fail("Response is not in valid JsObject")
+        }
+      }
+
+      "return the same result on valid request to GET `/graphql`" in {
+        val queryAst = graphql"query { helloWorld }"
+        val query = URLEncoder.encode(queryAst.renderCompact, "UTF-8")
+        Get(s"/graphql?query=$query") ~> smallRoute ~> check {
+          status shouldEqual OK
+          responseAs[JsValue] match {
+            case GqlResponse(Some(data), _) => {
+              val res = data ?[String] "helloWorld"
+              res shouldEqual "Hello World!"
+            }
+            case _ => fail("Response is not in valid JsObject")
+          }
         }
       }
     }

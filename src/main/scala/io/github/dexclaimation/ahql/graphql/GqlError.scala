@@ -19,6 +19,16 @@ object GqlError {
     "message" -> JsString(message)
   )
 
+
+  /**
+   * Custom Pattern matching for Error types
+   */
+  def unapply(arr: JsArray): Option[Vector[JsObject]] = Some(
+    arr.elements.collect {
+      case obj: JsObject => obj
+    }
+  )
+
   /**
    * Multiple GraphQL Error with only messages
    *

@@ -11,13 +11,13 @@ import akka.http.scaladsl.model.StatusCode
 import akka.http.scaladsl.model.StatusCodes.{BadRequest, InternalServerError, OK}
 import io.github.dexclaimation.ahql.utils.TKeep
 import sangria.ast
-import sangria.execution.deferred.DeferredResolver
 import sangria.execution._
+import sangria.execution.deferred.DeferredResolver
 import sangria.marshalling.sprayJson._
 import sangria.parser.QueryParser
 import sangria.schema.Schema
 import sangria.validation.QueryValidator
-import spray.json.{JsObject, JsString, JsValue}
+import spray.json.{JsObject, JsString, JsValue, JsonFormat}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -25,12 +25,12 @@ import scala.util.Try
 
 package object implicits {
 
-  implicit class TryOrElse[T](t: Try[T]) {
+  implicit final class TryOrElse[T](t: Try[T]) {
     /** Get the value or return the value from a fallback function */
     def unwrapOr(fallback: Throwable => T): T = t.fold(fallback, identity)
   }
 
-  implicit class JsGraphQL(js: JsValue) {
+  implicit final class JsGraphQL(js: JsValue) {
     /** Get Variables from the request as Object */
     def variables: Try[JsObject] = Try {
       val JsObject(fields) = js
@@ -71,7 +71,7 @@ package object implicits {
       .flatMap(TKeep.threeR(operationName))
   }
 
-  implicit class FutureGraphQL(e: Executor.type) {
+  implicit final class FutureGraphQL(e: Executor.type) {
 
     def handle[Ctx, Val: ClassTag](
       queryAst: ast.Document,
@@ -108,5 +108,14 @@ package object implicits {
         case error: QueryAnalysisError => BadRequest -> error.resolveError
         case error: ErrorWithResolver => InternalServerError -> error.resolveError
       }
+  }
+
+  implicit final class JsTraversal(js: JsValue) {
+    def apply(access: String): JsValue = js match {
+      case JsObject(fields) => fields(access)
+      case _ => throw new NoSuchElementException(access)
+    }
+
+    def ?[T: JsonFormat](access: String): T = js(access).convertTo[T]
   }
 }
