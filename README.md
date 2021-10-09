@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./logo.png" width="175" alt="logo" style="margin:1rem;"/>
+<img src="https://github.com/d-exclaimation/ahql/blob/main/logo.png" width="175" alt="logo" style="margin:1rem;"/>
 </p>
 <p align="center"> <h1>ahql</h1></p>
 
