@@ -84,11 +84,11 @@ object Main extends SprayJsonSupport {
 
   val query: ast.Document = graphql"""
     query {
-	  someField {
-	    nested1
-	    nested2
-	  }
-	}
+      someField {
+        nested1
+        nested2
+      }
+    }
   """
 
   val GqlResponse(data, errors) = gqlClient.fetch(query, 
@@ -108,11 +108,11 @@ object Main extends SprayJsonSupport {
 
   val query: ast.Document = graphql"""
     query {
-	  someField {
-	    nested1
-	    nested2
-	  }
-	}
+      someField {
+        nested1
+        nested2
+      }
+    }
   """
 
   val GqlResponse(data, errors) = Ahql
