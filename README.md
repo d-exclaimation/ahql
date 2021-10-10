@@ -51,7 +51,7 @@ object Main extends SprayJsonSupport {
   val route: Route = path("graphql") {
     optionalHeaderValueByName("Authorization")) { auth =>
       val context = Context(auth)
-      gqlServer.applyMiddleware(context)
+      Ahql.applyMiddleware[Context, Unit](schema, context), ())
     }
   }
 }
