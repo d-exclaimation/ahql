@@ -8,7 +8,7 @@ Akka Http Query Library, minimal GraphQL client and server exposing as a set of 
 
 ## Setup
 
-**Latest Version**: `0.1.0`
+**Latest Version**: `0.2.0`
 
 ```sbt
 "io.github.d-exclaimation" %% "ahql" % latestVersion

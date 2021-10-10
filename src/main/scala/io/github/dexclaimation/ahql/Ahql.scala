@@ -6,14 +6,15 @@
 //
 package io.github.dexclaimation.ahql
 
+import akka.actor.ClassicActorSystemProvider
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.StatusCode
+import akka.http.scaladsl.model.{HttpHeader, HttpMethod, HttpMethods, StatusCode}
 import akka.http.scaladsl.server.Route
 import sangria.execution._
 import sangria.execution.deferred.DeferredResolver
 import sangria.schema.Schema
 import sangria.validation.QueryValidator
-import spray.json.JsValue
+import spray.json.{JsObject, JsValue}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -48,6 +49,22 @@ object Ahql extends SprayJsonSupport {
   ): Server[Ctx, Val] = new AhqlServer[Ctx, Val](
     schema, root, queryValidator, deferredResolver, exceptionHandler,
     deprecationTracker, middleware, maxQueryDepth, queryReducers
+  )
+
+  type Client = AhqlClient
+
+  /**
+   * Minimal GraphQl HTTP-Based Client
+   *
+   * @param endpoint       Endpoint URL for the GraphQL API.
+   * @param defaultHeaders default headers on all fetch / request.
+   * @param provider       ActorSystem provider to execute request
+   */
+  def createClient(
+    endpoint: String,
+    defaultHeaders: Seq[HttpHeader] = Nil
+  )(implicit provider: ClassicActorSystemProvider): Client = new AhqlClient(
+    endpoint, defaultHeaders
   )
 
   /**
@@ -118,5 +135,27 @@ object Ahql extends SprayJsonSupport {
       deprecationTracker, middleware, maxQueryDepth, queryReducers
     )
     server.serve(js, ctx)
+  }
+
+  /**
+   * Make a fetch request to a GraphQL API.
+   *
+   * @param endpoint      URL Endpoint
+   * @param query         Query AST Document.
+   * @param operationName Operation name being executed from the AST.
+   * @param variables     Variables used in the query.
+   * @param headers       Additional header for this request.
+   * @return Future of an JsObject
+   */
+  def fetch(
+    endpoint: String,
+    query: sangria.ast.Document,
+    operationName: Option[String] = None,
+    variables: JsObject = JsObject.empty,
+    method: HttpMethod = HttpMethods.POST,
+    headers: Seq[HttpHeader] = Nil
+  )(implicit provider: ClassicActorSystemProvider, ex: ExecutionContext): Future[JsObject] = {
+    val client = new AhqlClient(endpoint)
+    client.fetch(query, operationName, variables, method, headers)
   }
 }

@@ -1,8 +1,9 @@
 scalaVersion := "2.13.3"
 
-ThisBuild / name := "ahql"
+name := "ahql"
+
 ThisBuild / organization := "io.github.d-exclaimation"
-ThisBuild / version := "0.1.0"
+ThisBuild / version := "0.2.0"
 ThisBuild / organizationHomepage := Some(url("https://www.dexclaimation.com"))
 ThisBuild / scmInfo := Some(
   ScmInfo(

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.2
+
+- Shorthand for `fetch` in the `Ahql` package.
+- Shorthand for instantiating `AhqlClient` in the `Ahql` package.
+
 ## v0.1
 
 - Minimal `Ahql` functions to handle GraphQL request for `akka-http` and `spray-json`.
