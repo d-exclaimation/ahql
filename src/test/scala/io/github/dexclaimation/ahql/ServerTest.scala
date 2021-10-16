@@ -14,6 +14,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import io.github.dexclaimation.ahql.graphql.{GqlRequest, GqlResponse}
 import io.github.dexclaimation.ahql.implicits._
+import io.github.dexclaimation.ahql.utils.HttpMethodStrategy
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import sangria.macros.LiteralGraphQLStringContext
@@ -35,7 +36,9 @@ class ServerTest extends AnyWordSpec with Matchers with ScalatestRouteTest with 
     )
   )
 
-  val ahqlServer = new AhqlServer(schema, ())
+  val ahqlServer = new AhqlServer(schema, (),
+    httpMethodStrategy = HttpMethodStrategy.enableAll
+  )
 
   "AhqlServer" when {
 

@@ -14,6 +14,7 @@ import akka.http.scaladsl.server.Directives.path
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import io.github.dexclaimation.ahql.graphql.GqlResponse
 import io.github.dexclaimation.ahql.implicits._
+import io.github.dexclaimation.ahql.utils.HttpMethodStrategy
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import sangria.macros.LiteralGraphQLStringContext
@@ -30,7 +31,9 @@ class ClientTest extends AnyWordSpec with Matchers with SprayJsonSupport with Sc
     )
   )
 
-  val ahqlServer = new AhqlServer(schema, ())
+  val ahqlServer = new AhqlServer(schema, (),
+    httpMethodStrategy = HttpMethodStrategy.enableAll
+  )
 
   val route = path("test") {
     ahqlServer.applyMiddleware(())
