@@ -1,9 +1,8 @@
 <p align="center">
-<img src="./icon.png" width="175" alt="logo" style="margin:1rem;"/>
+<img src="https://github.com/d-exclaimation/ahql/blob/main/icon.png" width="175" alt="logo" style="margin:1rem;"/>
 </p>
 <p align="center"> <h1>ahql</h1></p>
 
-<!-->https://github.com/d-exclaimation/ahql/blob/main/icon.png</!-->
 
 Akka Http Query Library, minimal GraphQL client and server exposing as a set of akka-http utilities.
 
