@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### v0.2.3
+
+- Added `HttpMethodStrategy` to allow different types of routing for `AhqlServer`.
+- Default `AhqlServer`'s `httpMethodStrategy` to `HttpMethodStrategy.onlyPost`.
+
 ### v0.2.2
 
 - Fixed merge issue in `v0.2.1` that overwrite updated dependencies to `akka` version `2.6.17`.

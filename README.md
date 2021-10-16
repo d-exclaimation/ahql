@@ -8,7 +8,7 @@ Akka Http Query Library, minimal GraphQL client and server exposing as a set of 
 
 ## Setup
 
-**Latest Version**: `0.2.2`
+**Latest Version**: `0.2.3`
 
 ```sbt
 "io.github.d-exclaimation" %% "ahql" % latestVersion
@@ -29,7 +29,9 @@ object Main extends SprayJsonSupport {
     ActorSystem(Behaviors.empty, "--")
 
   val gqlServer: Ahql.Server[Context, Unit] =
-    Ahql.createServer[Context, Unit](schema, ())
+    Ahql.createServer[Context, Unit](schema, (),
+      httpMethodStrategy = HttpMethodStrategy.queryOnlyGet
+    )
 
   val route: Route = path("graphql") {
     optionalHeaderValueByName("Authorization") { auth =>
@@ -50,7 +52,9 @@ object Main extends SprayJsonSupport {
   val route: Route = path("graphql") {
     optionalHeaderValueByName("Authorization") { auth =>
       val context = Context(auth)
-      Ahql.applyMiddleware[Context, Unit](schema, context, ())
+      Ahql.applyMiddleware[Context, Unit](schema, context, (),
+        httpMethodStrategy = HttpMethodStrategy.queryOnlyGet
+      )
     }
   }
 }

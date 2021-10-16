@@ -10,6 +10,7 @@ import akka.actor.ClassicActorSystemProvider
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.{HttpHeader, HttpMethod, HttpMethods, StatusCode}
 import akka.http.scaladsl.server.Route
+import io.github.dexclaimation.ahql.utils.HttpMethodStrategy
 import sangria.execution._
 import sangria.execution.deferred.DeferredResolver
 import sangria.schema.Schema
@@ -39,6 +40,7 @@ object Ahql extends SprayJsonSupport {
   def createServer[Ctx, Val: ClassTag](
     schema: Schema[Ctx, Val],
     root: Val,
+    httpMethodStrategy: HttpMethodStrategy = HttpMethodStrategy.onlyPost,
     queryValidator: QueryValidator = QueryValidator.default,
     deferredResolver: DeferredResolver[Ctx] = DeferredResolver.empty,
     exceptionHandler: ExceptionHandler = ExceptionHandler.empty,
@@ -47,7 +49,7 @@ object Ahql extends SprayJsonSupport {
     maxQueryDepth: Option[Int] = None,
     queryReducers: List[QueryReducer[Ctx, _]] = Nil
   ): Server[Ctx, Val] = new AhqlServer[Ctx, Val](
-    schema, root, queryValidator, deferredResolver, exceptionHandler,
+    schema, root, httpMethodStrategy, queryValidator, deferredResolver, exceptionHandler,
     deprecationTracker, middleware, maxQueryDepth, queryReducers
   )
 
@@ -86,6 +88,7 @@ object Ahql extends SprayJsonSupport {
     schema: Schema[Ctx, Val],
     ctx: Ctx,
     root: Val,
+    httpMethodStrategy: HttpMethodStrategy = HttpMethodStrategy.onlyPost,
     queryValidator: QueryValidator = QueryValidator.default,
     deferredResolver: DeferredResolver[Ctx] = DeferredResolver.empty,
     exceptionHandler: ExceptionHandler = ExceptionHandler.empty,
@@ -95,7 +98,7 @@ object Ahql extends SprayJsonSupport {
     queryReducers: List[QueryReducer[Ctx, _]] = Nil
   )(implicit ex: ExecutionContext): Route = {
     val server = new AhqlServer[Ctx, Val](
-      schema, root, queryValidator, deferredResolver, exceptionHandler,
+      schema, root, httpMethodStrategy, queryValidator, deferredResolver, exceptionHandler,
       deprecationTracker, middleware, maxQueryDepth, queryReducers
     )
     server.applyMiddleware(ctx)
@@ -122,6 +125,7 @@ object Ahql extends SprayJsonSupport {
     schema: Schema[Ctx, Val],
     ctx: Ctx,
     root: Val,
+    httpMethodStrategy: HttpMethodStrategy = HttpMethodStrategy.onlyPost,
     queryValidator: QueryValidator = QueryValidator.default,
     deferredResolver: DeferredResolver[Ctx] = DeferredResolver.empty,
     exceptionHandler: ExceptionHandler = ExceptionHandler.empty,
@@ -130,8 +134,9 @@ object Ahql extends SprayJsonSupport {
     maxQueryDepth: Option[Int] = None,
     queryReducers: List[QueryReducer[Ctx, _]] = Nil
   )(implicit ex: ExecutionContext): Future[(StatusCode, JsValue)] = {
-    val server = new AhqlServer[Ctx, Val](
-      schema, root, queryValidator, deferredResolver, exceptionHandler,
+    val server = createServer[Ctx, Val](
+      schema, root, httpMethodStrategy,
+      queryValidator, deferredResolver, exceptionHandler,
       deprecationTracker, middleware, maxQueryDepth, queryReducers
     )
     server.serve(js, ctx)
