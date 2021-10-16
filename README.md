@@ -9,7 +9,7 @@ Akka Http Query Library, minimal GraphQL client and server exposing as a set of 
 
 ## Setup
 
-**Latest Version**: `0.2.0`
+**Latest Version**: `0.2.1`
 
 ```sbt
 "io.github.d-exclaimation" %% "ahql" % latestVersion
@@ -26,14 +26,14 @@ Akka Http Query Library, minimal GraphQL client and server exposing as a set of 
 
 ```scala
 object Main extends SprayJsonSupport {
-  implicit val system: ActorSystem[Nothing] = 
+  implicit val system: ActorSystem[Nothing] =
     ActorSystem(Behaviors.empty, "--")
 
-  val gqlServer: Ahql.Server[Context, Unit] = 
+  val gqlServer: Ahql.Server[Context, Unit] =
     Ahql.createServer[Context, Unit](schema, ())
 
   val route: Route = path("graphql") {
-    optionalHeaderValueByName("Authorization")) { auth =>
+    optionalHeaderValueByName("Authorization") { auth =>
       val context = Context(auth)
       gqlServer.applyMiddleware(context)
     }
@@ -41,17 +41,17 @@ object Main extends SprayJsonSupport {
 }
 ```
 
-#### Using a shorthand 
+#### Using a shorthand
 
 ```scala
 object Main extends SprayJsonSupport {
-  implicit val system: ActorSystem[Nothing] = 
+  implicit val system: ActorSystem[Nothing] =
     ActorSystem(Behaviors.empty, "--")
 
   val route: Route = path("graphql") {
-    optionalHeaderValueByName("Authorization")) { auth =>
+    optionalHeaderValueByName("Authorization") { auth =>
       val context = Context(auth)
-      Ahql.applyMiddleware[Context, Unit](schema, context), ())
+      Ahql.applyMiddleware[Context, Unit](schema, context, ())
     }
   }
 }
@@ -76,13 +76,14 @@ GET: ".../graphql"
 
 ```scala
 object Main extends SprayJsonSupport {
-  implicit val system: ActorSystem[Nothing] = 
+  implicit val system: ActorSystem[Nothing] =
     ActorSystem(Behaviors.empty, "--")
 
-  val gqlClient: Ahql.Client = 
+  val gqlClient: Ahql.Client =
     Ahql.createClient("http://localhost:4000/graphql")
 
-  val query: ast.Document = graphql"""
+  val query: ast.Document =
+    graphql"""
     query {
       someField {
         nested1
@@ -91,22 +92,24 @@ object Main extends SprayJsonSupport {
     }
   """
 
-  val GqlResponse(data, errors) = gqlClient.fetch(query, 
-    headers = headers.Authorization("Bearer token") :: Nil
-  )
+  val GqlResponse(data, errors) = gqlClient
+    .fetch(query = query,
+      headers = headers.Authorization("Bearer token") :: Nil
+    )
   // data: Option[JsObject]
   // errors: Option[Vector[JsObject]]
 }
 ```
 
-#### Using a shorthand 
+#### Using a shorthand
 
 ```scala
 object Main extends SprayJsonSupport {
-  implicit val system: ActorSystem[Nothing] = 
+  implicit val system: ActorSystem[Nothing] =
     ActorSystem(Behaviors.empty, "--")
 
-  val query: ast.Document = graphql"""
+  val query: ast.Document =
+    graphql"""
     query {
       someField {
         nested1
@@ -118,7 +121,7 @@ object Main extends SprayJsonSupport {
   val GqlResponse(data, errors) = Ahql
     .fetch(
       endpoint = "http://localhost:4000/graphql",
-      query = query, 
+      query = query,
       headers = headers.Authorization("Bearer token") :: Nil
     )
   // data: Option[JsObject]

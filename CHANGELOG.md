@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### v0.2.1
+
+- Updated dependencies to `akka` version `2.6.17`.
+
 ## v0.2
 
 - Shorthand for `fetch` in the `Ahql` package.
