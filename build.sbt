@@ -3,7 +3,7 @@ scalaVersion := "2.13.3"
 name := "ahql"
 
 ThisBuild / organization := "io.github.d-exclaimation"
-ThisBuild / version := "0.2.1"
+ThisBuild / version := "0.2.2"
 ThisBuild / organizationHomepage := Some(url("https://www.dexclaimation.com"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -40,7 +40,7 @@ ThisBuild / versionScheme := Some("early-semver")
 
 libraryDependencies ++= {
   val sangriaVer = "2.1.3"
-  val AkkaVersion = "2.6.16"
+  val AkkaVersion = "2.6.17"
   val AkkaHttpVersion = "10.2.6"
   val sangriaSprayVer = "1.0.2"
 
