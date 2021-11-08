@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### v0.2.4
+
+- Updated packages up to the latest version.
+
 ### v0.2.3
 
 - Added `HttpMethodStrategy` to allow different types of routing for `AhqlServer`.
